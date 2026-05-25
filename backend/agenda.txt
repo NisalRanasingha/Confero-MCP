@@ -1,0 +1,32 @@
+CONFERO SYSTEM ID: CONFERO-SUMMIT-2026
+EVENT: Confero Summit 2026: The Enterprise AI Horizon
+
+SESSION LISTING FOR INTELLIGENT ROUTING & USER PERSONALIZATION:
+
+[SESSION_1]
+Time: 09:00 AM - 10:15 AM
+Title: Scaling Agentic Workflows in Production
+Speaker: Dr. Aris Thorne
+Focus Keywords: Multi-agent design, LLM orchestration, LangGraph, system automation, autonomous agents, cost optimization.
+Description: Dive into the architectural blueprints required to run resilient, multi-agent autonomous ecosystems. Learn how to manage agent loops, choose orchestration frameworks, and handle error states when deploying automated business tools into production.
+
+[SESSION_2]
+Time: 11:15 AM - 12:30 PM
+Title: Enterprise RAG: Moving Beyond Naive Vector Search
+Speaker: Elena Rostova
+Focus Keywords: Retrieval-Augmented Generation, advanced chunking, hybrid search, reranking pipelines, hallucination mitigation, text embeddings.
+Description: Moving beyond basic query-matching. This technical session covers parent-document retrieval, complex chunking strategies, and combining keyword search with dense vector matching to eliminate factual hallucinations in high-stakes enterprise applications.
+
+[SESSION_3]
+Time: 02:00 PM - 03:15 PM
+Title: AI Compliance, Privacy & Self-Hosted Foundation Models
+Speaker: Marcus Vance
+Focus Keywords: Data governance, self-hosted models, open-source LLMs, data privacy, compliance frameworks, regional regulation.
+Description: For highly regulated sectors like banking and healthcare. Explore how to strip out reliance on proprietary closed APIs, evaluate open-weight models (like Llama or Mistral), and manage secure on-premise deployments that pass strict internal audits.
+
+[SESSION_4]
+Time: 04:30 PM - 05:45 PM
+Title: The Modern Data Stack for Real-Time Generative AI
+Speaker: Sanaa Kulkarni
+Focus Keywords: Vector databases, unstructured data, real-time data streaming, Supabase, Kafka, data pipelines.
+Description: AI is only as fast as its data. Learn how to construct streaming data pipelines that ingest raw PDFs, application logs, and transactional databases, converting them into searchable vectors instantaneously using high-speed pipelines.

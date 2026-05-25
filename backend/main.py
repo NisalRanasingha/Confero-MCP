@@ -1,0 +1,130 @@
+import os
+import datetime
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+from google import genai 
+from google.genai import types 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Gemini Config
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class AttendeeRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=50)
+    email: EmailStr
+    interest: str = Field(..., min_length=5, max_length=300)
+
+# 3. MCP / Tool Calling Function
+def send_draft_via_mcp(email_address: str, email_body: str) -> str:
+    """
+    Simulates sending an email draft via MCP and logs the complete payload 
+    directly into the live backend server logs with a UTC timestamp.
+    """
+    utc_now = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+    log_payload = f"""
+==================== [MCP TOOL SIMULATION LOG] ====================
+[TIMESTAMP] : {utc_now}
+[TO]        : {email_address}
+[BODY]      :
+{email_body.strip()}
+===================================================================
+"""
+    print(log_payload, flush=True)  # Live server logs වල ක්ෂණිකව පෙනෙන්න flush කරනවා
+    return f"Success: Payload programmatically routed via MCP at {utc_now}"
+
+# 1. RAG: Agenda file එක කියවීම
+def get_agenda_context():
+    try:
+        with open("agenda.txt", "r", encoding="utf-8") as file:
+            return file.read()
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="agenda.txt file එක හොයාගන්න නැහැ මචං!")
+
+@app.post("/api/match")
+async def match_and_draft(data: AttendeeRequest):
+    context = get_agenda_context()
+    
+    # 2. AI Engineering: Instruction එක ඇතුලෙම Tool එක Trigger කරන්න කියලා නියෝග කරනවා
+ # prompt එක මෙන්න මේ විදිහට Strict කරන්න මචං:
+    prompt = f"""
+You are the premium AI Assistant for the 'Confero Summit 2026' corporate event.
+
+INSTRUCTIONS:
+1. Match the visitor's profile to the SINGLE most relevant session from the official schedule (Agenda) provided below.
+2. Draft a personalized corporate email invitation addressed directly to {data.name}.
+3. Once the draft is ready, you MUST call the tool `send_draft_via_mcp` passing the recipient's email address and the formatted email body text. Do not output anything else.
+
+STRICT CONTEXT LOCK RULES:
+- Use ONLY the information provided in the Context block below.
+
+VISITOR PROFILE:
+Name: {data.name}
+Email: {data.email}
+Professional Focus/Interests: {data.interest}
+
+CONTEXT (OFFICIAL AGENDA):
+{context}
+"""
+
+    try:
+        # Gemini එකට Tool එක සහ Automatic Function Calling සෙට් කරනවා
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                tools=[send_draft_via_mcp],  # Native Tool Calling / MCP Simulation
+                temperature=0.2, # Output එක ස්ථාවරව තියාගන්න ටෙම්පරේචර් එක අඩු කළා
+            )
+        )
+        
+        # Backend pipeline එක මඟින් Gemini ගේ තීරණය (Function Call එක) Intercept කරන Loop එක
+        mcp_triggered = False
+        execution_result = ""
+        final_email_body = ""
+
+        # Gemini විසින් function call එකක් රන් කරන්න කියලා අපිට රික්වෙස්ට් එකක් එව්වොත්
+        if response.function_calls:
+            for call in response.function_calls:
+                if call.name == "send_draft_via_mcp":
+                    mcp_triggered = True
+                    
+                    # Gemini විසින් generate කරපු arguments ටික programmatically උදුරා ගන්නවා
+                    args = call.args
+                    final_email_body = args.get("email_body", "")
+                    
+                    # අපේ local function එක සර්වර් එක ඇතුලේ run කරනවා (ලොග් එක පින්ට් වෙන්නේ මෙතනදී)
+                    execution_result = send_draft_via_mcp(
+                        email_address=args.get("email_address", data.email),
+                        email_body=final_email_body
+                    )
+
+        # හැලූසිනේෂන් එකක් හරි වෙලා function call එකක් නොවී කෙලින්ම text එකක් ආවොත් fallback එකක් විදිහට:
+        if not mcp_triggered and response.text:
+            final_email_body = response.text
+            send_draft_via_mcp(data.email, final_email_body)
+            mcp_triggered = True
+            execution_result = "Fallback triggered: Manual execution used."
+
+        return {
+            "status": "success",
+            "matched_draft": final_email_body,
+            "mcp_triggered": mcp_triggered,
+            "pipeline_status": execution_result
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
