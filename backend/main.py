@@ -9,8 +9,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Gemini Config
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# 🔥 Gemini Config - Safe Initialization
+try:
+    # google-genai ලයිබ්‍රරි එකෙන් auto එන්වයරන්මන්ට් එකෙන් GEMINI_API_KEY එක කියවනවා මචං
+    client = genai.Client()
+    print("🚀 Gemini Client successfully initialized!", flush=True)
+except Exception as e:
+    print(f"🔥 Gemini Client Initialization Failed: {e}", flush=True)
+    client = None
 
 app = FastAPI()
 
@@ -55,10 +61,16 @@ def get_agenda_context():
 
 @app.post("/api/match")
 async def match_and_draft(data: AttendeeRequest):
+    # සර්වර් එක ලෝඩ් වෙද්දී Client එක හැදුනේ නැත්නම් මෙතනදී error එක දෙනවා
+    if client is None:
+        raise HTTPException(
+            status_code=500, 
+            detail="Gemini Client එක හැදිලා නැහැ මචං! Render Env Variables වල GEMINI_API_KEY එක හරියටම තියෙනවද බලන්න."
+        )
+        
     context = get_agenda_context()
     
     # 2. AI Engineering: Instruction එක ඇතුලෙම Tool එක Trigger කරන්න කියලා නියෝග කරනවා
-    # prompt එක මෙන්න මේ විදිහට Strict කරන්න මචං:
     prompt = f"""
     You are the premium corporate AI Assistant for the 'Accelalpha & Oracle Supply Chain Summit'.
 
