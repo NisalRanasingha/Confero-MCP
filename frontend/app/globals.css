@@ -251,3 +251,4 @@ html { scroll-behavior: smooth; }
 .form-input::placeholder { color: var(--text-muted); }
 
 .in-view { animation: fadeUp 0.7s ease forwards; }
+

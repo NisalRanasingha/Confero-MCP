@@ -1,17 +1,24 @@
 'use client'
 import { useState, useEffect } from 'react'
 
-const TARGET = new Date('2024-11-13T09:30:00')
+// 💡 මෙතනට ඔයාට ඕන ඉස්සරහට එන Target Date සහ Time එක දාන්න මචන්
+const TARGET_DATE_STR = '2026-06-03T09:30:00'
 
 function pad(n) { return String(n).padStart(2, '0') }
 
 export default function Countdown() {
+  // SSR Hydration ගැටලුව මඟහරවා ගන්න මුලින්ම 00 දාලා state එක initialize කරනවා
   const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+    const target = new Date(TARGET_DATE_STR).getTime()
+
     const calc = () => {
-      const now = new Date()
-      const diff = Math.max(0, TARGET - now)
+      const now = new Date().getTime()
+      const diff = Math.max(0, target - now)
+
       setTime({
         days: Math.floor(diff / 86400000),
         hours: Math.floor((diff % 86400000) / 3600000),
@@ -19,10 +26,28 @@ export default function Countdown() {
         seconds: Math.floor((diff % 60000) / 1000),
       })
     }
-    calc()
+
+    calc() // Run immediately on mount
     const id = setInterval(calc, 1000)
+    
     return () => clearInterval(id)
   }, [])
+
+  // Component එක client එකේ mounted වෙනකන් හිස්ව තියනවා (Hydration error එක වළක්වන්න)
+  if (!mounted) {
+    return (
+      <div className="flex gap-4 justify-center flex-wrap opacity-0">
+        {['DAYS', 'HOURS', 'MINUTES', 'SECONDS'].map((label) => (
+          <div key={label} className="text-center">
+            <div className="countdown-digit w-20 h-20 flex items-center justify-center">
+              <span className="font-black text-3xl gradient-text">00</span>
+            </div>
+            <p className="text-xs font-semibold mt-2 tracking-widest" style={{ color: 'var(--text-muted)' }}>{label}</p>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   const units = [
     { label: 'DAYS', value: time.days },
@@ -35,11 +60,9 @@ export default function Countdown() {
     <div className="flex gap-4 justify-center flex-wrap">
       {units.map(({ label, value }) => (
         <div key={label} className="text-center">
-          <div
-            className="countdown-digit w-20 h-20 flex items-center justify-center"
-          >
+          <div className="countdown-digit w-20 h-20 flex items-center justify-center">
             <span
-              className="font-black text-3xl gradient-text"
+              className="font-black text-3xl gradient-text animate-none"
               key={value}
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >

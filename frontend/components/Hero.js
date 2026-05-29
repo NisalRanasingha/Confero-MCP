@@ -76,7 +76,7 @@ export default function Hero() {
               TROUBLED
               <br />
               <span className="gradient-text">WATERS</span>
-              <span style={{ color: 'var(--text-primary)' }}>:</span>
+              <span style={{ color: 'var(--text-primary)' }}> :</span>
             </h1>
 
             <p
