@@ -2,7 +2,6 @@ import os
 import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr
 from pydantic import BaseModel, EmailStr, Field
 from google import genai 
 from google.genai import types 
@@ -59,26 +58,39 @@ async def match_and_draft(data: AttendeeRequest):
     context = get_agenda_context()
     
     # 2. AI Engineering: Instruction එක ඇතුලෙම Tool එක Trigger කරන්න කියලා නියෝග කරනවා
- # prompt එක මෙන්න මේ විදිහට Strict කරන්න මචං:
+    # prompt එක මෙන්න මේ විදිහට Strict කරන්න මචං:
     prompt = f"""
-You are the premium AI Assistant for the 'Confero Summit 2026' corporate event.
+    You are the premium corporate AI Assistant for the 'Accelalpha & Oracle Supply Chain Summit'.
 
-INSTRUCTIONS:
-1. Match the visitor's profile to the SINGLE most relevant session from the official schedule (Agenda) provided below.
-2. Draft a personalized corporate email invitation addressed directly to {data.name}.
-3. Once the draft is ready, you MUST call the tool `send_draft_via_mcp` passing the recipient's email address and the formatted email body text. Do not output anything else.
+    YOUR CORE MISSION:
+    1. Match the visitor's profile to the SINGLE most relevant session from the official schedule (Agenda) provided below by evaluating the Focus Keywords and Description.
+    2. Draft a personalized corporate email invitation addressed directly to {data.name}.
 
-STRICT CONTEXT LOCK RULES:
-- Use ONLY the information provided in the Context block below.
+    STRICT EMAIL FORMATTING RULES:
+    Inside the `email_body`, you MUST format the matched session details into a dedicated, visually clear and separated block. Do not write it as a continuous paragraph. It must look exactly like this layout inside the email text:
 
-VISITOR PROFILE:
-Name: {data.name}
-Email: {data.email}
-Professional Focus/Interests: {data.interest}
+    RECOMMENDED SESSION FOR YOU:
+    • Topic: [Insert Exact Session Title Here]
+    • Time: [Insert Exact Time Slot Here]
+    • Speaker: [Insert Speaker Name(s) Here]
 
-CONTEXT (OFFICIAL AGENDA):
-{context}
-"""
+    Ensure there is a friendly introduction before this block and a brief professional takeaway after this block explaining why this specific session fits their professional background.
+
+    STRICT TOOL CALLING RULES:
+    - Once the draft is ready, you MUST call the tool `send_draft_via_mcp`.
+    - Pass exactly these two arguments:
+      * `email_address`: {data.email}
+      * `email_body`: The complete formatted email text block containing the structured session lines.
+    - Do not output anything else outside the tool call.
+
+    VISITOR PROFILE:
+    Name: {data.name}
+    Email: {data.email}
+    Professional Focus/Interests: {data.interest}
+
+    CONTEXT (OFFICIAL AGENDA):
+    {context}
+    """
 
     try:
         # Gemini එකට Tool එක සහ Automatic Function Calling සෙට් කරනවා
