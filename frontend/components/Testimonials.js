@@ -7,7 +7,7 @@ const testimonials = [
     quote: 'This summit opened my eyes to the future of AI and how it will shape industries.',
     name: 'Mark Vandenberg',
     title: 'CTO, NeuralTech',
-    initials: 'MV',
+    image: '/32.jpg',
     color: '#3b82f6',
     heading: 'Game Changing Insights',
   },
@@ -15,7 +15,7 @@ const testimonials = [
     quote: 'Incredible speakers, top-tier networking, and cutting-edge discussions all in one place.',
     name: 'Elena Rojas',
     title: 'AI Researcher, DeepMind',
-    initials: 'ER',
+    image: '/32.jpg',
     color: '#10b981',
     heading: 'The Best AI Event!',
   },
@@ -23,7 +23,7 @@ const testimonials = [
     quote: 'From hands-on workshops to visionary talks, this summit is a must-attend for AI professionals.',
     name: 'David Laurent',
     title: 'CEO, FutureAI Labs',
-    initials: 'DL',
+    image: '/32.jpg',
     color: '#a855f7',
     heading: 'Unmatched Opportunities',
   },
@@ -68,10 +68,11 @@ export default function Testimonials() {
               <button
                 key={i}
                 onClick={() => setActive(i)}
-                className="w-2 h-2 rounded-full transition-all duration-200"
+                className="rounded-full transition-all duration-200"
                 style={{
                   background: i === active ? 'var(--accent)' : 'var(--border)',
                   width: i === active ? '20px' : '8px',
+                  height: '8px',
                   border: 'none',
                   cursor: 'pointer',
                 }}
@@ -86,6 +87,7 @@ export default function Testimonials() {
 
 function TestimonialCard({ t, index }) {
   const [ref, visible] = useInView()
+  const [imgError, setImgError] = useState(false)
 
   return (
     <div
@@ -116,12 +118,23 @@ function TestimonialCard({ t, index }) {
 
       {/* Author */}
       <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-          style={{ background: `linear-gradient(135deg, ${t.color}, ${t.color}88)` }}
-        >
-          {t.initials}
-        </div>
+        {!imgError ? (
+          <img
+            src={t.image}
+            alt={t.name}
+            onError={() => setImgError(true)}
+            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            style={{ border: `2px solid ${t.color}33` }}
+          />
+        ) : (
+          /* Fallback to initials if image fails to load */
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+            style={{ background: `linear-gradient(135deg, ${t.color}, ${t.color}88)` }}
+          >
+            {t.name.split(' ').map(n => n[0]).join('')}
+          </div>
+        )}
         <div>
           <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{t.name}</p>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.title}</p>

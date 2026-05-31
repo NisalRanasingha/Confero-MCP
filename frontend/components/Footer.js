@@ -24,15 +24,6 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-2))' }}
-              >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M2 14 L9 4 L16 14 Z" stroke="white" strokeWidth="1.5" fill="none"/>
-                  <circle cx="9" cy="9" r="2" fill="white"/>
-                </svg>
-              </div>
               <span className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
                 Cogent Solutions™
               </span>
