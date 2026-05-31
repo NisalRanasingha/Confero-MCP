@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import useInView from './useInView'
 
-// Agenda එකට අනුව ස්පීකර්ලා 8 දෙනාගේ විස්තර
 const speakers = [
    {
     name: 'Dr. Raman Kumar',
@@ -85,18 +84,15 @@ function SpeakerCard({ sp, index }) {
         transition: `opacity 0.6s ease, transform 0.6s ease`,
       }}
     >
-      {/* Speaker Image - Hover කරද්දී grayscale එක අයින් වෙලා color වෙනවා, 105% zoom වෙනවා */}
       <img
         src={sp.image}
         alt={sp.name}
         className="w-full h-full object-cover grayscale contrast-[1.1] transition-all duration-500 ease-out group-hover:scale-105 group-hover:grayscale-0"
       />
 
-      {/* Default Overlay - Hover කරන්න කලින් තියෙන පොඩි shadow එක */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-300 group-hover:opacity-0" />
 
       {/* Sliding Dark Gradient Overlay + Text Panel */}
-      {/* Solid background එක අයින් කරලා gradient එකක් දැම්මා image එක පෙනෙන්න */}
       <div 
         className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0"
       >
@@ -133,7 +129,6 @@ export default function Speakers() {
   const [ref, visible] = useInView()
   const [showAll, setShowAll] = useState(false)
 
-  // showAll true නම් 8 දෙනාම පේනවා, නැත්නම් මුල් 4 දෙනා විතරයි
   const visibleSpeakers = showAll ? speakers : speakers.slice(0, 4)
 
   return (

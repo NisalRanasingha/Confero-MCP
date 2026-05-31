@@ -1,13 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
 
-// 💡 මෙතනට ඔයාට ඕන ඉස්සරහට එන Target Date සහ Time එක දාන්න මචන්
 const TARGET_DATE_STR = '2026-06-03T09:30:00'
 
 function pad(n) { return String(n).padStart(2, '0') }
 
 export default function Countdown() {
-  // SSR Hydration ගැටලුව මඟහරවා ගන්න මුලින්ම 00 දාලා state එක initialize කරනවා
   const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [mounted, setMounted] = useState(false)
 
@@ -33,7 +31,6 @@ export default function Countdown() {
     return () => clearInterval(id)
   }, [])
 
-  // Component එක client එකේ mounted වෙනකන් හිස්ව තියනවා (Hydration error එක වළක්වන්න)
   if (!mounted) {
     return (
       <div className="flex gap-4 justify-center flex-wrap opacity-0">
