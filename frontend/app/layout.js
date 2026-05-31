@@ -1,6 +1,6 @@
 import './globals.css'
 
-const SITE_URL = 'https://event-managment-frontend-chi.vercel.app' 
+const SITE_URL = 'https://event-managment-frontend-nine.vercel.app' 
 
 export const metadata = {
   title: 'Troubled Waters: Sailing with AI in Supply Chain',
